@@ -57,8 +57,7 @@ The current launch and config files show that this repository is designed to sit
 ### Official Hiwonder
 
 - **Official Website**: [https://www.hiwonder.com/](https://www.hiwonder.com/)
-- **Product Page**: [https://www.hiwonder.com/](https://www.hiwonder.com/)
-- **Official Documentation**: [https://www.hiwonder.com/](https://www.hiwonder.com/)
+- **OpenClaw Repository**: [https://github.com/openclaw/openclaw](https://github.com/openclaw/openclaw)
 - **Technical Support**: support@hiwonder.com
 
 ## Getting Started

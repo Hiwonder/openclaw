@@ -57,8 +57,7 @@
 ### 幻尔科技官方
 
 - **官方网站**: [https://www.hiwonder.com/](https://www.hiwonder.com/)
-- **产品页面**: [https://www.hiwonder.com/](https://www.hiwonder.com/)
-- **官方文档**: [https://www.hiwonder.com/](https://www.hiwonder.com/)
+- **OpenClaw 官方仓库**: [https://github.com/openclaw/openclaw](https://github.com/openclaw/openclaw)
 - **技术支持**: support@hiwonder.com
 
 ## 快速开始
