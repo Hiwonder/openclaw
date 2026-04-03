@@ -1,0 +1,140 @@
+🌸
+# Openclaw 
+## 配置模型(提前配置好使用的模型，若使用飞书，则需要使用飞书)
+openclaw config
+## 查看有哪些skill
+openclaw skills list --eligible
+
+# 开启服务
+openclaw gateway run
+
+#2 使用tui窗口发送指令
+openclaw tui
+
+# 课程
+## 机器人底盘控制/机器人臂控制
+### 开启设备硬件
+ros2 launch openclaw_controller robot_base_control.launch
+
+###  底盘移动
+#### Debug
+ros2 topic pub --once /claw_move_control/chassis_command std_msgs/msg/String "{data: 'forward 1, stop 0.5, backward 2'}"
+#### Openclaw 发送
+前进1秒, 后退两秒
+
+
+## 摄像头识别(使用支持视觉的模型)
+看看前面有什么,然后告诉我
+
+
+## 机械臂控制（体验固定动作组）
+#### Debug
+ros2 topic pub --once /claw_arm_group_control/arm_group_control std_msgs/msg/String "{data: 'voice_pick'}"
+#### Openclaw 发送
+拔个萝卜
+拿给我
+
+
+## 三维空间夹取（两种方式，方式2使用 object_track 进行追踪（默认），方式2使用颜色进行追踪,提前调节好颜色阈值，Pi5或者Jetson Nano最好使用）
+
+
+### Debug（用颜色识别进行功能测试，默认启动就行）
+ros2 launch openclaw_controller robot_base_control.launch.py  
+# 先进入玩法
+ros2 service call /claw_track_and_grab/start std_srvs/srv/Trigger "{}"
+## 设置颜色（发送颜色）
+ros2 service call /claw_track_and_grab/set_color interfaces/srv/SetString "{data: 'red'}"
+# 对准后发送夹取的指令
+ros2 service call /claw_track_and_grab/start_pick std_srvs/srv/Trigger "{}"
+# 放置
+ros2 service call /claw_track_and_grab/place std_srvs/srv/Trigger "{}"
+# 初始化姿态
+ros2 service call /claw_track_and_grab/init_pose std_srvs/srv/Trigger "{}"
+# 查询夹取姿态
+ros2 service call /claw_track_and_grab/pick_status std_srvs/srv/Trigger "{}"
+
+# Openclaw 文字口令
+夹取一个红色的方块,
+好的，给我放下吧
+
+### Debug（object_track_debug:=true 通过鼠标左键框选）
+# 启动程序
+ros2 launch openclaw_controller robot_base_control.launch.py  track_method:="obj_track"  object_track_debug:=true
+# 先进入玩法
+ros2 service call /claw_track_and_grab/start std_srvs/srv/Trigger "{}"
+# 对准后发送夹取的指令
+ros2 service call /claw_track_and_grab/start_pick std_srvs/srv/Trigger "{}"
+# 放置
+ros2 service call /claw_track_and_grab/place std_srvs/srv/Trigger "{}"
+# 初始化姿态
+ros2 service call /claw_track_and_grab/init_pose std_srvs/srv/Trigger "{}"
+# 查询夹取姿态
+ros2 service call /claw_track_and_grab/pick_status std_srvs/srv/Trigger "{}"
+
+
+## 2 智能管家导航
+ros2 launch openclaw_controller navigation_manager.launch.py
+
+# 查看导航位置
+ros2 service call /claw_navigation_manager/list_positions std_srvs/srv/Trigger {}
+# 去动物园
+ros2 service call /claw_navigation_manager/set_pose interfaces/srv/SetString "{data: '动物园'}"
+
+### 文字指令
+带我去动物园看看,那里面有哪些东西，总结好给我
+
+
+## 3 智慧社区
+## 调试步骤（default 地图）
+
+ros2 launch openclaw_controller apriltag_control_node.launch.py
+
+
+### 1、夹取快递盒(调试模式->校准+夹取快递盒->快递放置->机械臂复位)
+### 设置调试默认-快递盒
+ros2 service call /apriltag_control_node/set_debug_mode interfaces/srv/SetString "{data: pick_exp}"
+### 校准+夹取快递盒
+ros2 service call /apriltag_control_node/debug_pick_exp std_srvs/srv/Trigger "{}"
+### 调试 - 快递放置
+ros2 service call /apriltag_control_node/place_exp std_srvs/srv/Trigger "{}"
+### 机械臂复位
+ros2 service call /apriltag_control_node/init_pose std_srvs/srv/Trigger "{}"
+
+### 2、夹取果篮(调试模式->校准+夹取果篮->果篮放置->机械臂复位)
+# 设置调试模式
+ros2 service call /apriltag_control_node/set_debug_mode interfaces/srv/SetString "{data: pick_basket}"
+# 调试 - 果篮拾取
+ros2 service call /apriltag_control_node/debug_pick_basket std_srvs/srv/Trigger "{}"
+# 调试 - 果篮放置
+ros2 service call /apriltag_control_node/debug_place_basket std_srvs/srv/Trigger "{}"
+### 机械臂复位
+ros2 service call /apriltag_control_node/init_pose std_srvs/srv/Trigger "{}"
+
+#### 3、Debug完成之后，综合测试 （不加 road_network_map 就是 default 地图 ）
+ros2 launch openclaw_controller smart_scene_navigation.launch.py  navigation_mode:="smart_community" road_network_map:="road_network_community"
+# 果篮拾取
+ros2 service call /apriltag_control_node/pick_basket std_srvs/srv/Trigger "{}"
+# 果篮放置
+ros2 service call /apriltag_control_node/place_basket std_srvs/srv/Trigger "{}"
+
+# 快递拾取
+ros2 service call /apriltag_control_node/pick_exp std_srvs/srv/Trigger "{}"
+# 快递放置
+ros2 service call /apriltag_control_node/place_exp std_srvs/srv/Trigger "{}"
+
+# 清空 apriltag 目标点
+ros2 service call /apriltag_control_node/clear_target std_srvs/srv/Trigger "{}"
+
+
+
+
+## 4 智慧工厂(颜色夹取的，调整好颜色阈值，三维夹取的Debug要通过)
+ros2 launch openclaw_controller smart_scene_navigation.launch.py  navigation_mode:="smart_factory" road_network_map:="road_network_factory"
+
+### 视频指令指令
+给我去看看生产线的货物是否充足,如果不充足给我从原料仓进行补货
+# 机器人->去生产线->是否需要补货->从原料仓拿货补货->搬运到生产线
+## 视频指令
+
+###先去原料仓看看物料是否充足，接着去生产线查验设备是否运行正常，再去质检处看看货物检验状态，最后去发货仓看看货物是否充足。把每个区域的照片、库存状况都汇总并发给我。
+### 

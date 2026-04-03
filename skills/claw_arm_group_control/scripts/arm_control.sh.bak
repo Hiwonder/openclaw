@@ -1,0 +1,54 @@
+#!/usr/bin/env zsh
+# 机械臂动作控制器包装脚本 / Robot Arm Action Controller Wrapper
+# 自动检查并启动服务，然后执行动作 / Auto-check and start service, then execute action
+
+# 加载 ROS2 环境 / Load ROS2 environment
+source ~/.zshrc
+
+# 检查 arm_action_server 是否已启动 / Check if arm_action_server is running
+check_service() {
+    ros2 service list 2>/dev/null | grep -q "/arm_action_server/execute_action"
+    return $?
+}
+
+# 启动 arm_action_server / Start arm_action_server
+start_server() {
+    echo "arm_action_server 未启动，正在启动..."
+    python3 ~/.openclaw/workspace/skills/arm-action-controller/scripts/arm_action_server.py &
+    sleep 3
+}
+
+# 检查服务是否可用，最多等待10秒 / Wait for service, max 10 seconds
+wait_for_service() {
+    local count=0
+    while ! check_service && [ $count -lt 10 ]; do
+        sleep 1
+        count=$((count + 1))
+    done
+}
+
+# 主逻辑 / Main logic
+ACTION="$1"
+
+if [ -z "$ACTION" ]; then
+    echo "用法: $0 <动作名称>"
+    echo "例如: $0 camera_up"
+    exit 1
+fi
+
+# 检查服务是否运行 / Check if service is running
+if ! check_service; then
+    echo "arm_action_server 未运行，正在启动..."
+    start_server
+    wait_for_service
+fi
+
+# 再次检查 / Check again
+if ! check_service; then
+    echo "错误: arm_action_server 启动失败"
+    exit 1
+fi
+
+# 发送动作请求 / Send action request
+echo "执行动作: $ACTION"
+ros2 service call /arm_action_server/execute_action interfaces/srv/SetString "{data: '$ACTION'}"

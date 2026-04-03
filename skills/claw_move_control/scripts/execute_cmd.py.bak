@@ -1,0 +1,49 @@
+#!/usr/bin/env python3
+"""
+Execute chassis command via topic / 通过话题发送底盘命令
+支持单动作和多动作连续执行 / Supports single and multi-action sequences
+"""
+
+import argparse
+import rclpy
+from rclpy.node import Node
+from std_msgs.msg import String
+
+
+class ChassisCommander(Node):
+    def __init__(self, topic_name='/chassis_command'):
+        super().__init__('chassis_commander')
+        self.topic_name = topic_name
+        self.publisher = self.create_publisher(String, topic_name, 10)
+        self.get_logger().info(f'Publishing to / 发布到: {topic_name}')
+
+    def execute(self, cmd_string):
+        """Publish command string to topic / 发布命令字符串到话题"""
+        msg = String()
+        msg.data = cmd_string
+        
+        self.get_logger().info(f'Publishing / 发布: {cmd_string}')
+        self.publisher.publish(msg)
+        self.get_logger().info(f'Command sent / 命令已发送')
+
+
+def main(args=None):
+    parser = argparse.ArgumentParser(description='Execute chassis command / 执行底盘命令')
+    parser.add_argument('--cmd', '-c', type=str, required=True, 
+                        help='Command string, e.g. "forward 2" or "forward 1, stop 0.5, backward 2" / 命令字符串')
+    parser.add_argument('--topic', '-t', type=str, default='/claw_move_control/chassis_command',
+                        help='Topic name / 话题名')
+    
+    parsed_args, _ = parser.parse_known_args(args)
+    
+    print(f'Executing command / 执行命令: {parsed_args.cmd}')
+    
+    rclpy.init()
+    node = ChassisCommander(parsed_args.topic)
+    node.execute(parsed_args.cmd)
+    node.destroy_node()
+    rclpy.shutdown()
+
+
+if __name__ == '__main__':
+    main()
