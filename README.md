@@ -61,7 +61,7 @@ This makes OpenClaw more than a control entry point on ROSOrin Pro. It becomes a
 - **Official Website**: [https://www.hiwonder.com/](https://www.hiwonder.com/)
 - **Technical Support**: support@hiwonder.com
 
-### Official OpenClaw
+### OpenClaw Official
 
 - **OpenClaw Repository**: [https://github.com/openclaw/openclaw](https://github.com/openclaw/openclaw)
 
@@ -75,21 +75,114 @@ Before getting started, prepare the following:
 - A working ROS2 robot environment
 - Connected robot hardware such as the mobile base, robotic arm, camera, and navigation-related modules
 
-### How To Start
+### OpenClaw CLI
 
-A typical experience flow looks like this:
-
-1. Start the OpenClaw gateway and robot control services.
-2. Open the OpenClaw dashboard or terminal interface.
-3. Send natural-language instructions to try movement, arm actions, tracking, grasping, and navigation features.
-
-Common commands:
+Here are the most common OpenClaw commands for daily use:
 
 ```bash
+# Start the gateway
 openclaw gateway run
+
+# View logs
+openclaw logs --follow
+
+# Check gateway status
+openclaw gateway status
+
+# Open the dashboard
 openclaw dashboard
+
+# Open the terminal UI
 openclaw tui
+
+# Configure models / channels
+openclaw configure
+
+# Disable auto-start
+systemctl --user disable openclaw-gateway
+
+# Stop the current service
+systemctl --user stop openclaw-gateway
+```
+
+### Thinking Modes
+
+You can switch the model thinking level based on task complexity:
+
+```text
+/think:low
+/think:medium
+/thinking big
+/think:off
+```
+
+### Agents And Skills
+
+OpenClaw supports checking agent bindings, sending direct instructions to the main agent, and listing available skills:
+
+```bash
+# List agents and bindings
+openclaw agents list --bindings
+
+# Send a message to the main agent
+openclaw agent --agent main --message "Help me check today's weather"
+
+# List available skills
+openclaw skills list --eligible
+
+# Install a new skill
+npm clawhub install xxxx
+```
+
+### ROS2 Startup And Control
+
+ROS2 packages are typically located in:
+
+```text
+/home/ubuntu/ros2_ws/src
+```
+
+Start the robot control stack:
+
+```bash
 ros2 launch openclaw_controller robot_base_control.launch.py
+```
+
+### Chassis Control Example
+
+For debugging, you can publish directly to the ROS2 topic:
+
+```bash
+ros2 topic pub --once /claw_move_control/chassis_command std_msgs/msg/String "{data: 'forward 1, stop 0.5, backward 2'}"
+```
+
+In OpenClaw, a user can send a natural instruction such as:
+
+```text
+Move forward for 1 second, then backward for 2 seconds
+```
+
+### Camera Recognition Example
+
+With a vision-capable model enabled, the robot can be asked to describe what it sees:
+
+```text
+Look at what is in front of you and tell me what you see
+```
+
+### Preset Arm Action Example
+
+For debugging, you can trigger a preset arm action directly:
+
+```bash
+ros2 topic pub --once /claw_arm_group_control/arm_group_control std_msgs/msg/String "{data: 'voice_pick'}"
+```
+
+In OpenClaw, a user can simply type:
+
+```text
+Pick it up
+Hand it to me
 ```
 
 ### Typical Experiences
@@ -98,6 +191,21 @@ ros2 launch openclaw_controller robot_base_control.launch.py
 - **Preset arm actions**: Experience arm pickup, handover, and initialization actions.
 - **Target pickup**: Try color-based grasping or object-aware grasping.
 - **Scene navigation**: Run tasks among places such as home, supermarket, express station, raw material warehouse, production line, quality check, and shipping area.
+
+### Configuration Cleanup
+
+If you need to prepare an image or clear local configuration data, you can use the cleanup script included in this repository. It removes local model, session, and memory-related data.
+
+```bash
+chmod +x .clear_openclaw_confing.sh
+zsh .clear_openclaw_confing.sh
+```
+
+In deployment environments, this script is typically placed at:
+
+```text
+/home/ubuntu/.openclaw/.clear_openclaw_confing.sh
+```
 
 ## Repository Structure
 

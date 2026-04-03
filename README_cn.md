@@ -61,7 +61,7 @@ OpenClaw 已经围绕用户体验整理出几类典型玩法：
 - **官方网站**: [https://www.hiwonder.com/](https://www.hiwonder.com/)
 - **技术支持**: support@hiwonder.com
 
-### openclaw官方
+### OpenClaw 官方
 
 - **OpenClaw 仓库**: [https://github.com/openclaw/openclaw](https://github.com/openclaw/openclaw)
 
@@ -75,21 +75,114 @@ OpenClaw 已经围绕用户体验整理出几类典型玩法：
 - 可正常运行的 ROS2 机器人环境
 - 已接入的底盘、机械臂、摄像头及导航相关功能
 
-### 上手方式
+### OpenClaw 命令行
 
-典型使用流程如下：
-
-1. 启动 OpenClaw 网关与机器人控制服务。
-2. 进入 OpenClaw 面板或终端交互界面。
-3. 向机器人发送自然语言指令，体验移动、动作组、追踪、夹取和导航等能力。
-
-常用命令示例：
+以下是常用的 OpenClaw 基础命令：
 
 ```bash
+# 启动网关
 openclaw gateway run
+
+# 查看日志
+openclaw logs --follow
+
+# 检查网关状态
+openclaw gateway status
+
+# 打开可视化面板
 openclaw dashboard
+
+# 打开命令行终端界面
 openclaw tui
+
+# 配置 models / channels
+openclaw configure
+
+# 禁用开机自启
+systemctl --user disable openclaw-gateway
+
+# 停止当前服务
+systemctl --user stop openclaw-gateway
+```
+
+### 模型思考模式
+
+在交互过程中，可以根据任务复杂度切换模型思考强度：
+
+```text
+/think:low
+/think:medium
+/thinking big
+/think:off
+```
+
+### 智能体与技能
+
+OpenClaw 支持查看智能体绑定情况、直接向主智能体发送指令，以及查看当前可用技能：
+
+```bash
+# 查看智能体列表和绑定信息
+openclaw agents list --bindings
+
+# 给主智能体发送消息
+openclaw agent --agent main --message "帮我查一下今天的天气"
+
+# 查看可用 skills
+openclaw skills list --eligible
+
+# 安装新的 skill
+npm clawhub install xxxx
+```
+
+### ROS2 启动与控制
+
+ROS2 功能包通常存放在：
+
+```text
+/home/ubuntu/ros2_ws/src
+```
+
+启动机器人底层控制：
+
+```bash
 ros2 launch openclaw_controller robot_base_control.launch.py
+```
+
+### 底盘移动示例
+
+调试时，可以直接发送 ROS2 话题：
+
+```bash
+ros2 topic pub --once /claw_move_control/chassis_command std_msgs/msg/String "{data: 'forward 1, stop 0.5, backward 2'}"
+```
+
+在 OpenClaw 中，用户可以直接发送类似指令：
+
+```text
+前进1秒，后退两秒
+```
+
+### 摄像头识别示例
+
+使用支持视觉的模型时，可以直接让机器人描述画面内容，例如：
+
+```text
+看看前面有什么，然后告诉我
+```
+
+### 机械臂动作组示例
+
+调试时，可以直接发送机械臂动作组命令：
+
+```bash
+ros2 topic pub --once /claw_arm_group_control/arm_group_control std_msgs/msg/String "{data: 'voice_pick'}"
+```
+
+在 OpenClaw 中，用户可以直接输入：
+
+```text
+拔个萝卜
+拿给我
 ```
 
 ### 典型体验内容
@@ -98,6 +191,21 @@ ros2 launch openclaw_controller robot_base_control.launch.py
 - **动作组体验**：体验机械臂拿取、递送、初始化等固定动作。
 - **目标夹取**：体验颜色追踪夹取或目标识别夹取。
 - **场景导航**：体验“家、超市、快递站、原料仓、生产线、质检处、发货仓”等地点任务。
+
+### 配置清理
+
+如果需要输出镜像或清理本地配置，可以使用仓库内附带的清理脚本。该脚本会删除模型、会话、记忆等本地配置数据。
+
+```bash
+chmod +x .clear_openclaw_confing.sh
+zsh .clear_openclaw_confing.sh
+```
+
+部署时，这个脚本通常放在：
+
+```text
+/home/ubuntu/.openclaw/.clear_openclaw_confing.sh
+```
 
 ## 仓库结构
 
