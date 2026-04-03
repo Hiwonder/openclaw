@@ -3,155 +3,124 @@
 [English](README.md) | 中文
 
 <p align="center">
-  这是一个面向用户玩法的 OpenClaw 机器人源码仓库，把自然语言交互、ROS2 技能、导航、视觉追踪和夹取流程串到了一台具体机器人上。
+  基于 ROSOrin Pro 的 OpenClaw 交互方案，让机器人从“能控制”进一步走向“更自然、更好玩、更适合展示与教学”。
 </p>
 
 ## 产品概述
 
 ### 关于 OpenClaw
 
-本仓库是接入 ROSOrin Pro 产品的 OpenClaw 功能源码，主要承担自然语言交互与机器人能力之间的连接工作。项目已经完成了移动底盘、机械臂、摄像头、导航模块以及技能调用链路的整合，可用于产品演示、场景扩展和功能二次开发。
+OpenClaw 是接入 ROSOrin Pro 产品中的一套机器人交互与玩法方案。它将自然语言交互能力与底盘、机械臂、摄像头、导航等机器人能力打通，让用户可以用更直观的方式体验移动、识别、追踪、夹取和导航等完整流程。
 
-基于这套源码，用户在 OpenClaw 中发出的指令可以进一步映射为具体的 ROS2 机器人动作，例如底盘移动、机械臂动作组执行、目标识别与追踪、自动夹取以及按地点名称进行导航。
+相较于传统只面向开发调试的控制方式，OpenClaw 更强调“可体验、可展示、可扩展”。对于创客、大学生、机器人社团、教学实验室以及需要快速搭建演示场景的用户来说，它能够明显降低体验门槛，同时保留足够的扩展空间。
 
-对于希望在 ROSOrin Pro 上扩展交互能力、丰富场景玩法，或继续完善机器人应用流程的开发者和集成者来说，这个仓库提供了较为完整的参考实现。
+依托 ROSOrin Pro 的硬件与 ROS2 能力，OpenClaw 可以把常见的机器人功能组织成更自然的交互体验，让一台机器人不只是“能动起来”，而是真正具备更完整的互动表现力。
 
-### 它解决的是“机器人能用起来”这件事
+### 为什么它更适合展示与教学
 
-这个项目不是只给你一堆底层话题名，而是把常用能力整理成用户能直接理解的玩法：
+OpenClaw 的价值不只是把多个功能拼在一起，而是把它们整理成用户容易理解、容易复现、也更容易继续扩展的玩法体系。
 
-**底盘移动**：支持前进、后退、左转、右转、停止，也支持连续动作编排。
+**更自然的交互方式**：用户不需要只记一堆底层话题和参数，而是可以围绕实际任务来体验机器人能力。
 
-**机械臂动作组**：已经内置了拿取、递给用户、初始化、抬臂等预设动作，适合快速做互动演示。
+**更完整的功能闭环**：从底盘移动、机械臂动作，到视觉识别、目标追踪、自动夹取，再到按地点导航，体验链路更加完整。
 
-**追踪夹取**：既支持按目标物体追踪，也支持按颜色追踪，然后进入自动夹取流程。
+**更适合教学展示**：无论是课堂演示、创客活动、实验室展示，还是比赛项目验证，都更容易快速形成可见成果。
 
-**场景导航**：支持普通导航、智能工厂、智能社区等模式，可以按地点名称直接导航。
+**更适合继续拓展**：在现有玩法基础上，可以继续增加场景、动作、技能和交互逻辑，逐步形成更丰富的应用内容。
 
 ## 功能与架构
 
-### 用户可以怎么玩
+### 核心玩法
 
-从仓库内容来看，这套源码已经覆盖了几类很典型的用户玩法：
+OpenClaw 已经围绕用户体验整理出几类典型玩法：
 
-**自然语言控制机器人**：通过 `openclaw gateway run`、`openclaw tui`、`openclaw agent --agent main --message "..."` 等入口，把用户语言接入机器人控制。
+**自然语言控制机器人**：通过 OpenClaw 作为交互入口，让机器人更容易进入“能听懂、能执行、能反馈”的体验模式。
 
-**移动 + 机械臂联动**：先让机器人移动到位，再执行拿取、递送、复位等动作，适合导览、递物、课堂互动。
+**底盘移动与机械臂联动**：机器人可以先移动到指定位置，再执行拿取、递送、复位等动作，适合做导览、递物和互动展示。
 
-**看见再去抓**：支持目标追踪或颜色追踪，再接自动夹取，适合做“抓蓝色积木”“夹前面的目标物”这类玩法。
+**视觉识别与追踪夹取**：支持目标识别追踪和颜色追踪两类方式，适合做“找到目标并抓取”的应用演示。
 
-**按场景跑任务**：仓库已经内置了智能工厂和智能社区两套地点配置，可以跑“去超市”“去快递站”“去原料仓”“去发货仓”这类场景任务。
+**场景化导航**：支持普通导航、智能工厂、智能社区等模式，能够围绕地点名称完成更具场景感的任务流程。
 
-### 代码是怎么组织的
+### 能力组成
 
-整个项目主要分成两层：
+从整体能力上看，这套方案主要由几部分组成：
 
-**`openclaw_controller/`**：一个 ROS2 Python 功能包，里面放了节点和启动文件，负责底盘控制、机械臂动作组、导航管理、目标追踪、追踪夹取、语音和 TTS 等能力。
+**交互层**：负责接收用户在 OpenClaw 中发出的自然语言指令，并组织对应任务流程。
 
-**`skills/`**：OpenClaw 侧的技能定义和辅助脚本，告诉智能体该怎么调用 ROS2 的话题和服务，把“用户说的话”落成具体动作流程。
+**控制层**：负责连接 ROS2 下的底盘运动、机械臂动作组、视觉追踪、夹取控制与导航功能。
 
-从启动文件和依赖关系可以看出来，这个仓库不是单独跑一条命令就完事的类型，而是要放进更大的 ROS2 工作空间里，和 `controller`、`kinematics`、`navigation`、`large_models`、`large_models_examples` 等包一起工作。
+**玩法层**：围绕移动、抓取、递送、导航等实际使用场景，将能力组合成更容易演示和体验的机器人玩法。
+
+这也意味着，OpenClaw 在 ROSOrin Pro 上不仅是一个控制入口，更是一套面向用户体验和场景展示的机器人交互方案。
 
 ## 官方资源
 
 ### 幻尔科技官方
 
 - **官方网站**: [https://www.hiwonder.com/](https://www.hiwonder.com/)
-- **OpenClaw 官方仓库**: [https://github.com/openclaw/openclaw](https://github.com/openclaw/openclaw)
 - **技术支持**: support@hiwonder.com
+
+### openclaw官方
+
+- **OpenClaw 仓库**: [https://github.com/openclaw/openclaw](https://github.com/openclaw/openclaw)
 
 ## 快速开始
 
-### 硬件准备
+### 基础准备
 
-- 一套兼容 OpenClaw 的机器人硬件，通常包含移动底盘、机械臂和 RGB 摄像头
-- 一台已经配置好 ROS2 的 Linux 设备
-- 目标设备上已经安装并能正常运行 OpenClaw
-- 与本仓库配套的上游 ROS2 功能包，例如控制、运动学、导航和大模型相关包
+在开始体验之前，建议准备以下环境：
 
-### 软件环境搭建
+- 已集成 OpenClaw 方案的 ROSOrin Pro 设备
+- 可正常运行的 ROS2 机器人环境
+- 已接入的底盘、机械臂、摄像头及导航相关功能
 
-1. 把本仓库放进 ROS2 工作空间，常见方式是放到 `src/openclaw_controller`，或者放到你的机器人镜像约定的源码目录里。
-2. 确认依赖的 ROS2 包和 OpenClaw 运行环境已经就绪。
-3. 先启动 OpenClaw 网关：
+### 上手方式
+
+典型使用流程如下：
+
+1. 启动 OpenClaw 网关与机器人控制服务。
+2. 进入 OpenClaw 面板或终端交互界面。
+3. 向机器人发送自然语言指令，体验移动、动作组、追踪、夹取和导航等能力。
+
+常用命令示例：
 
 ```bash
 openclaw gateway run
-```
-
-4. 再启动核心机器人控制：
-
-```bash
+openclaw dashboard
+openclaw tui
 ros2 launch openclaw_controller robot_base_control.launch.py
 ```
 
-5. 如果要用导航能力，根据场景选择导航模式：
+### 典型体验内容
 
-```bash
-# 普通地图导航
-ros2 launch openclaw_controller navigation_manager.launch.py navigation_mode:=normal
-
-# 智能工厂演示
-ros2 launch openclaw_controller navigation_manager.launch.py navigation_mode:=smart_factory
-
-# 智能社区演示
-ros2 launch openclaw_controller navigation_manager.launch.py navigation_mode:=smart_community
-```
-
-6. 按你的使用习惯选择 OpenClaw 入口：
-
-```bash
-# 面板
-openclaw dashboard
-
-# 终端界面
-openclaw tui
-
-# 直接给主智能体发一条指令
-openclaw agent --agent main --message "前进1秒，然后把东西拿给我"
-```
-
-### 典型玩法
-
-- **控制底盘移动**：通过 `claw_move_control` 技能执行单步或连续移动。
-- **体验动作组**：通过 `voice_pick`、`voice_give`、`init`、`camera_up` 等动作快速完成演示。
-- **按颜色夹取**：使用 `claw_track_and_grab` 的 `color_track` 模式，适合抓取颜色明显的目标。
-- **按目标识别夹取**：结合 `claw_object_track` 和 `claw_track_and_grab` 做更明确的目标夹取。
-- **跑场景任务**：在“家、超市、快递站、原料仓、生产线、质检处、发货仓”等地点之间执行导航任务。
+- **移动控制**：体验前进、后退、转向和连续运动控制。
+- **动作组体验**：体验机械臂拿取、递送、初始化等固定动作。
+- **目标夹取**：体验颜色追踪夹取或目标识别夹取。
+- **场景导航**：体验“家、超市、快递站、原料仓、生产线、质检处、发货仓”等地点任务。
 
 ## 仓库结构
 
 ```text
 openclaw/
-├── openclaw_controller/
-│   ├── config/                  # 导航和场景配置
-│   ├── launch/                  # ROS2 启动文件
-│   ├── openclaw_controller/     # ROS2 Python 节点实现
-│   ├── scripts/                 # 辅助脚本
-│   └── test/                    # 基础测试
-├── skills/
-│   ├── claw_arm_group_control/  # 机械臂动作组
-│   ├── claw_move_control/       # 底盘移动控制
-│   ├── claw_navigation_manager/ # 按地点名导航
-│   ├── claw_object_track/       # 视觉目标追踪
-│   ├── claw_track_and_grab/     # 追踪夹取
-│   └── ros2-cam-subscribe/      # 摄像头取图辅助
-├── MEMORY.md                    # 项目侧长期记忆和规则
-├── USER.md                      # 操作者配置说明
-├── ROSOrinPro_Command           # 部署环境命令备忘
-└── .clear_openclaw_confing.sh   # OpenClaw 本地配置清理脚本
+├── openclaw_controller/         # ROS2 控制与启动文件
+├── skills/                      # OpenClaw 技能与脚本
+├── MEMORY.md                    # 项目侧长期规则与说明
+├── USER.md                      # 用户配置说明
+├── ROSOrinPro_Command           # 部署命令参考
+└── .clear_openclaw_confing.sh   # 本地配置清理脚本
 ```
 
 ## 社区与支持
 
-- **GitHub Issues**: 用于提交 Bug、使用问题和功能建议
+- **GitHub Issues**: 提交问题反馈和功能建议
 - **邮件支持**: support@hiwonder.com
-- **项目定位**: 适合已有 OpenClaw 机器人方案上的演示、教学和二次开发
+- **文档资料**: 完整的教程指南
 
 ## 许可证
 
-当前仓库里没有单独提供 `LICENSE` 文件。如果你准备二次分发、商用集成，或者公开发布基于它修改后的版本，建议先和项目维护方确认授权范围。
+本项目开源，可用于教育和研究目的。
 
 ---
 
-**幻尔科技** - 让机器人交互更容易搭起来，也更容易玩起来
+**幻尔科技** - 赋能机器人教育创新

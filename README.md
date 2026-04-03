@@ -3,155 +3,124 @@
 English | [中文](README_cn.md)
 
 <p align="center">
-  OpenClaw source code and playbook for one user-facing robot setup, combining natural-language control, ROS2 skills, navigation, vision tracking, and grasping.
+  An OpenClaw experience built on ROSOrin Pro, designed to make robot interaction more natural, more engaging, and better suited for demos, education, and creative projects.
 </p>
 
 ## Product Overview
 
 ### About OpenClaw
 
-This repository contains the OpenClaw integration source code used in the ROSOrin Pro product. It serves as the connection layer between natural-language interaction and robot-side capabilities, bringing together the mobile base, robotic arm, camera, navigation modules, and skill invocation pipeline for demos, scenario extensions, and secondary development.
+OpenClaw is an interaction and play-style solution integrated into the ROSOrin Pro product line. It connects natural-language interaction with the robot's mobile base, robotic arm, camera, and navigation capabilities, making it easier to experience complete workflows such as movement, recognition, tracking, grasping, and scene-based navigation.
 
-With this codebase, user instructions received by OpenClaw can be translated into practical ROS2 robot actions, including chassis movement, preset arm motions, target detection and tracking, automatic grasping, and destination-based navigation.
+Compared with traditional robot control flows that are mainly oriented toward low-level debugging, OpenClaw is designed to be more approachable, more presentable, and more expandable. It is well suited for makers, university students, robotics clubs, teaching labs, and anyone who wants to build compelling robot demos on top of ROSOrin Pro.
 
-For developers and integrators who want to extend interaction workflows, enrich application scenarios, or build on top of ROSOrin Pro, this repository provides a concrete and reusable reference implementation.
+By building on ROSOrin Pro hardware and ROS2 capabilities, OpenClaw helps turn core robot functions into a smoother and more engaging user experience, so the robot is not only controllable, but also expressive and ready for real interaction scenarios.
 
-### Built Around Real Robot Tasks
+### Why It Fits Demos And Education
 
-Instead of exposing only low-level ROS2 topics, this codebase packages common robot behaviors into reusable capabilities:
+OpenClaw is not simply a collection of robot functions. It organizes those functions into a user-facing experience that is easier to understand, easier to demonstrate, and easier to extend.
 
-**Move the robot**: The chassis can execute single or chained commands such as forward, backward, left, right, and stop.
+**More natural interaction**: Users can approach the robot through task-oriented instructions instead of relying only on low-level topics and parameters.
 
-**Run arm actions quickly**: Preset arm-group motions like pick, give, init, and camera-up are ready for direct use.
+**A more complete workflow**: Chassis movement, arm actions, visual tracking, automatic grasping, and destination-based navigation are connected into a more coherent experience.
 
-**Track and grab objects**: The system supports both object-based tracking and color-based tracking, then hands the target over to the grab pipeline.
+**Better for teaching and showcasing**: It is easier to build visible outcomes for classrooms, maker activities, lab demos, and robotics project presentations.
 
-**Navigate by scene**: The robot can move to named destinations in normal maps, smart factory scenes, and smart community scenes.
+**Ready for extension**: Existing play modes can be expanded with new scenes, actions, skills, and interaction logic as projects grow.
 
 ## Features & Architecture
 
-### What Users Can Do
+### Core Experiences
 
-This repository already covers several user-facing play styles:
+OpenClaw already supports several user-facing robot experiences:
 
-**Natural-language robot control**: OpenClaw can serve as the front end through commands such as `openclaw gateway run`, `openclaw tui`, and `openclaw agent --agent main --message "..."`.
+**Natural-language interaction**: OpenClaw provides an entry point that helps the robot feel easier to instruct, easier to demonstrate, and easier to interact with.
 
-**Mobile manipulation**: Users can ask the robot to move, then perform an arm action, which is a practical pattern for delivery, presentation, and classroom interaction.
+**Mobile base and arm collaboration**: The robot can move first, then perform pickup, handover, or reset actions, which works well for guided demos and interactive presentations.
 
-**Visual pick-and-place**: The robot can track a detected object or a target color, then perform grasping and optional placement.
+**Visual tracking and grasping**: Both object-based tracking and color-based tracking are supported for pick-and-grab style applications.
 
-**Scene-based navigation**: The built-in configs already define destination sets for factory-style and community-style demos, such as home, supermarket, express station, raw material warehouse, production line, quality check, and shipping area.
+**Scene-based navigation**: Normal navigation, smart factory, and smart community modes make it possible to build more scenario-driven experiences around named destinations.
 
-### How The Stack Is Organized
+### Capability Layout
 
-The project is split into two main layers:
+At a high level, this solution is organized into several layers:
 
-**`openclaw_controller/`**: A ROS2 Python package that provides executable nodes and launch files for chassis control, arm-group control, navigation, object tracking, track-and-grab, TTS, and voice integration.
+**Interaction layer**: Receives natural-language instructions from OpenClaw and organizes the corresponding task flow.
 
-**`skills/`**: User-oriented skill definitions and helper scripts that describe how OpenClaw should call ROS2 services and topics for movement, navigation, tracking, grasping, and camera subscription.
+**Control layer**: Connects ROS2-based chassis control, arm action groups, visual tracking, grasping, and navigation features.
 
-The current launch and config files show that this repository is designed to sit inside a larger ROS2 workspace and work together with packages such as `controller`, `kinematics`, `navigation`, `large_models`, `large_models_examples`, and related robot drivers.
+**Experience layer**: Combines movement, pickup, handover, and navigation into play styles that are easier for users to understand and enjoy.
+
+This makes OpenClaw more than a control entry point on ROSOrin Pro. It becomes a user-oriented interaction layer that helps transform robot capabilities into clearer, richer, and more engaging experiences.
 
 ## Official Resources
 
 ### Official Hiwonder
 
 - **Official Website**: [https://www.hiwonder.com/](https://www.hiwonder.com/)
-- **OpenClaw Repository**: [https://github.com/openclaw/openclaw](https://github.com/openclaw/openclaw)
 - **Technical Support**: support@hiwonder.com
+
+### Official OpenClaw
+
+- **OpenClaw Repository**: [https://github.com/openclaw/openclaw](https://github.com/openclaw/openclaw)
 
 ## Getting Started
 
-### Hardware Requirements
+### Basic Preparation
 
-- An OpenClaw-compatible robot setup with a mobile base, robotic arm, and RGB camera
-- A Linux device with ROS2 already prepared for the robot
-- A working OpenClaw environment on the target machine
-- The required upstream ROS2 packages used by this repository, including controller, kinematics, navigation, and large-model related packages
+Before getting started, prepare the following:
 
-### Software Setup
+- A ROSOrin Pro device with the OpenClaw solution integrated
+- A working ROS2 robot environment
+- Connected robot hardware such as the mobile base, robotic arm, camera, and navigation-related modules
 
-1. Put this repository into your ROS2 workspace, typically as `src/openclaw_controller` or in a matching source layout used by your robot image.
-2. Make sure the dependent ROS2 packages and OpenClaw runtime are already installed and working.
-3. Start the OpenClaw gateway:
+### How To Start
+
+A typical experience flow looks like this:
+
+1. Start the OpenClaw gateway and robot control services.
+2. Open the OpenClaw dashboard or terminal interface.
+3. Send natural-language instructions to try movement, arm actions, tracking, grasping, and navigation features.
+
+Common commands:
 
 ```bash
 openclaw gateway run
-```
-
-4. Start the core robot control launch:
-
-```bash
+openclaw dashboard
+openclaw tui
 ros2 launch openclaw_controller robot_base_control.launch.py
 ```
 
-5. If you need navigation, start the navigation manager with the right mode:
+### Typical Experiences
 
-```bash
-# normal map navigation
-ros2 launch openclaw_controller navigation_manager.launch.py navigation_mode:=normal
-
-# smart factory demo
-ros2 launch openclaw_controller navigation_manager.launch.py navigation_mode:=smart_factory
-
-# smart community demo
-ros2 launch openclaw_controller navigation_manager.launch.py navigation_mode:=smart_community
-```
-
-6. Use the OpenClaw interface that fits your workflow:
-
-```bash
-# Web/dashboard
-openclaw dashboard
-
-# Terminal UI
-openclaw tui
-
-# Send a direct instruction to the main agent
-openclaw agent --agent main --message "Move forward for 1 second, then give me the item"
-```
-
-### Example Play Modes
-
-- **Drive the robot**: Send movement commands through the `claw_move_control` skill.
-- **Pick and hand over**: Trigger preset arm actions such as `voice_pick` and `voice_give`.
-- **Grab by color**: Use `claw_track_and_grab` in `color_track` mode for simple color-based pickup tasks.
-- **Grab by target**: Pair `claw_object_track` with `claw_track_and_grab` for object-aware pickup.
-- **Run scene demos**: Navigate among named places like home, supermarket, express station, raw material warehouse, production line, quality check, and shipping area.
+- **Movement control**: Try forward, backward, turning, and chained motion control.
+- **Preset arm actions**: Experience arm pickup, handover, and initialization actions.
+- **Target pickup**: Try color-based grasping or object-aware grasping.
+- **Scene navigation**: Run tasks among places such as home, supermarket, express station, raw material warehouse, production line, quality check, and shipping area.
 
 ## Repository Structure
 
 ```text
 openclaw/
-├── openclaw_controller/
-│   ├── config/                  # Navigation and scene configuration
-│   ├── launch/                  # ROS2 launch files for core features
-│   ├── openclaw_controller/     # ROS2 Python nodes
-│   ├── scripts/                 # Helper scripts
-│   └── test/                    # Basic package tests
-├── skills/
-│   ├── claw_arm_group_control/  # Preset robotic arm actions
-│   ├── claw_move_control/       # Chassis movement control
-│   ├── claw_navigation_manager/ # Named-destination navigation
-│   ├── claw_object_track/       # Visual target tracking
-│   ├── claw_track_and_grab/     # Tracking-based grasping
-│   └── ros2-cam-subscribe/      # Camera capture helpers
-├── MEMORY.md                    # Project-side long-term usage notes
-├── USER.md                      # Human/operator profile notes
-├── ROSOrinPro_Command           # Command memo for deployed environments
-└── .clear_openclaw_confing.sh   # Cleanup script for local OpenClaw config
+├── openclaw_controller/         # ROS2 control package and launch files
+├── skills/                      # OpenClaw skills and helper scripts
+├── MEMORY.md                    # Project-side notes and rules
+├── USER.md                      # User-side configuration notes
+├── ROSOrinPro_Command           # Deployment command reference
+└── .clear_openclaw_confing.sh   # Local configuration cleanup script
 ```
 
 ## Community & Support
 
-- **GitHub Issues**: Use Issues for bug reports, usage questions, and feature requests
+- **GitHub Issues**: Report issues and submit feature suggestions
 - **Email Support**: support@hiwonder.com
-- **Project Customization**: Suitable for internal demos, teaching projects, and secondary development on top of an existing OpenClaw robot deployment
+- **Documentation**: Complete tutorials and guides
 
 ## License
 
-This repository does not currently include a standalone `LICENSE` file. If you plan to redistribute, modify for commercial delivery, or integrate it into a public project, confirm the licensing terms with the project owner first.
+This project is open-source and available for educational and research purposes.
 
 ---
 
-**Hiwonder** - Making robot interaction easier to build, demo, and extend
+**Hiwonder** - Empowering innovation in robotics education
